@@ -7,7 +7,7 @@ Created by : Mr Dk.
 
 ---
 
-First step to understanding Linux kernel.
+Some basic knowledge of using Linux.
 
 ---
 
