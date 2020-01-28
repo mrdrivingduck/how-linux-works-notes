@@ -8,38 +8,20 @@ Created by : Mr Dk.
 
 ---
 
-本章介绍进程、内核、系统资源之间的联系
+本章介绍进程、内核、系统资源之间的联系。三种基本的硬件资源：
 
-三种基本的硬件资源：
+- CPU
+- 主存
+- I/O
 
-* CPU
-* 主存
-* I/O
-
-进程需要这些资源，而内核的工作是公平地分配这些资源
-
-内核本身也是一种软件资源：
-
-* 创建新进程
-* 与其它进程进行通信
-
-本章将会介绍很多性能监测工具
-
-* 但不要试图优化一个正确运行的系统 - 通常是浪费时间
-* 关注这些工具实际上在测量什么才是有意义的
-
----
+进程需要这些资源，而内核的工作是公平地分配这些资源。内核本身也是一种软件资源：创建新进程，与其它进程进行通信。本章将会介绍很多性能监测工具。但不要试图优化一个正确运行的系统：通常是浪费时间。关注这些工具实际上在测量什么才是有意义的。
 
 ## 8.1 Tracking Processes
 
-在之前已经讲过，用 `ps` 来观测所有正在运行的进程
+在之前已经讲过，用 `ps` 来观测所有正在运行的进程。但 `ps` 无法告诉用户进程随时间的变化状态。`top` 程序比 `ps` 更好用：
 
-* 但 `ps` 无法告诉用户进程随时间的变化状态
-
-`top` 程序比 `ps` 更好用：
-
-* 每秒都会更新显示
-* 将最活跃（使用 CPU 时间较长）的进程排在顶上
+- 每秒都会更新显示
+- 将最活跃（使用 CPU 时间较长）的进程排在顶上
 
 在 `top` 运行中，按下按键能够发送命令，修改 `top` 排序的方式：
 
@@ -51,74 +33,59 @@ Created by : Mr Dk.
 | f         | Add/Remove/Order sort           |
 | h         | Helps                           |
 
----
-
 ## 8.2 Finding Open Files with lsof
 
-`lsof` 命令列出了所有打开的文件，以及正在使用它们的进程
-
-由于 Unix 的文件设计哲学，`lsof` 在寻找错误的过程中十分有效
-
-* `lsof` 不仅能查看文件，还可以查看网络资源、动态库、管道等等
+`lsof` 命令列出了所有打开的文件，以及正在使用它们的进程。由于 Unix 的文件设计哲学，`lsof` 在寻找错误的过程中十分有效。`lsof` 不仅能查看文件，还可以查看网络资源、动态库、管道等等。
 
 ### 8.2.1 Reading the lsof Output
 
-运行 `lsof` 会产生大量输出
+运行 `lsof` 会产生大量输出，输出的每一行的含义如下：
 
-输出的每一行的含义如下：
-
-* COMMAND - 持有文件描述符的进程的命令名称
-* PID - 进程 ID
-* USER - 运行进程的用户
-* FD - 可以显示文件的用途，也可以显示 _file descriptor_
-* TYPE - 文件类型 (regular file, directory, socket, ...)
-* DEVICE - The major and minor number of the device that holds a file
-* SIZE - 文件大小
-* NODE - 文件的 inode 编号
-* NAME - 文件名
+- COMMAND - 持有文件描述符的进程的命令名称
+- PID - 进程 ID
+- USER - 运行进程的用户
+- FD - 可以显示文件的用途，也可以显示 _file descriptor_
+- TYPE - 文件类型 (regular file, directory, socket, ...)
+- DEVICE - The major and minor number of the device that holds a file
+- SIZE - 文件大小
+- NODE - 文件的 inode 编号
+- NAME - 文件名
 
 ### 8.2.2 Using lsof
 
-* 将所有的输出 pipe 到 `less` 中并寻找想要的结果
-
-* 使用命令行选项，只过滤匹配的结果
+- 将所有的输出 pipe 到 `less` 中并寻找想要的结果
+- 使用命令行选项，只过滤匹配的结果
 
   * 只显示在 `/usr` 目录下打开的文件：
 
     ```bash
-    $ lsof /usr
+    lsof /usr
     ```
 
   * 只显示特定进程打开的文件：
 
     ```bash
-    $ lsof -p <pid>
+    lsof -p <pid>
     ```
 
->  `lsof` 高度依赖内核信息，因此如果启动不同的内核，可能需要对 `lsof` 的版本进行调整
-
----
+> `lsof` 高度依赖内核信息，因此如果启动不同的内核，可能需要对 `lsof` 的版本进行调整。
 
 ## 8.3 Tracing Program Execution and System Calls
 
-如果一个命令发生了错误，`lsof` 很难告诉你原因
-
-`stract` (system call trace) 和 `ltrace` (library trace) 可以帮助用户得知程序试图做什么
+如果一个命令发生了错误，`lsof` 很难告诉你原因。`strace` (system call trace) 和 `ltrace` (library trace) 可以帮助用户得知程序试图做什么。
 
 ### 8.3.1 strace
 
-`strace` 工具将会打印进程所有的系统调用请求
+`strace` 工具将会打印进程所有的系统调用请求。比如，查看一下 `cat` 程序中使用的系统调用：
 
-比如，查看一下 `cat` 程序中使用的系统调用：
+- `strace` 在调用 `fork()` 产生子进程后开始生效
+- 因此第一个系统调用肯定是 `exec()` 家族，用于执行对应的程序
+- 接下来是载入一些 shared libraries
+- 直到 `openat()` 打开了 `/dev/null`，并返回 `3`
+  - `3` 是对应的文件描述符
+  - `read(3, ...)`
 
-* `strace` 在调用 `fork()` 产生子进程后开始生效
-* 因此第一个系统调用肯定是 `exec()` 家族，用于执行对应的程序
-* 接下来是载入一些 shared libraries
-* 直到 `openat()` 打开了 `/dev/null`，并返回 `3`
-  * `3` 是对应的文件描述符
-  * `read(3, ...)`
-
-```bash
+```console
 $ strace cat /dev/null
 execve("/bin/cat", ["cat", "/dev/null"], 0x7ffcfb6e2ae8 /* 33 vars */) = 0
 brk(NULL)                               = 0x55c719307000
@@ -165,10 +132,10 @@ exit_group(0)                           = ?
 
 如果发生问题了呢？
 
-* 会发现 `openat()` 返回了 `-1`
-* `openat(AT_FDCWD, "not_a_file", O_RDONLY) = -1 ENOENT (No such file or directory)`
+- 会发现 `openat()` 返回了 `-1`
+- `openat(AT_FDCWD, "not_a_file", O_RDONLY) = -1 ENOENT (No such file or directory)`
 
-```bash
+```console
 $ strace cat not_a_file
 execve("/bin/cat", ["cat", "not_a_file"], 0x7ffd642cd228 /* 33 vars */) = 0
 brk(NULL)                               = 0x558abc359000
@@ -227,54 +194,32 @@ exit_group(1)                           = ?
 +++ exited with 1 +++
 ```
 
-从而可以轻松找到程序中的问题
+从而可以轻松找到程序中的问题。
 
 ### 8.3.2 ltrace
 
-追踪 shared library calls
-
----
+追踪 shared library calls。
 
 ## 8.4 Threads
 
-在 Linux 中，很多进程被进一步划分为线程 (threads)
+在 Linux 中，很多进程被进一步划分为线程 (threads)。线程与进程很类似：
 
-线程与进程很类似：
-
-* 包含一个 TID (thread ID)
-* 内核与调度进程一样调度线程
-* 进程之前不共享系统资源 (内存、I/O)
-  * 而同一个进程内的所有线程共享进程的系统资源
+- 包含一个 TID (thread ID)
+- 内核与调度进程一样调度线程
+- 进程之前不共享系统资源 (内存、I/O)
+- 同一个进程内的所有线程共享进程的系统资源
 
 ### 8.4.1 Single-Threaded and Multi-threaded Processes
 
-很多进程只有一个线程
+很多进程只有一个线程。只有一个线程的进程称为 single-threaded process，由多个线程的进程称为 multi-threaded process。所有的进程一开始都只有一个线程，该线程被称为主线程，从主线程中可以开启很多个新线程。
 
-* 只有一个线程的进程称为 _single-threaded_ process
-* 由多个线程的进程称为 _multi-threaded_ process
-
-所有的进程一开始都只有一个线程
-
-* 该线程被称为主线程
-* 从主线程中可以开启很多个新线程
-
-线程能够同时运行在多个处理器上
-
-且创建开销比进程更小
-
-线程之间的通信可以通过共享内存实现，性能较高
-
-而进程之间的通信则需要通过网络连接或管道（经过内核）
-
-一些程序使用线程来解决管理多个 I/O 资源的功能
+线程能够同时运行在多个处理器上，且创建开销比进程更小。线程之间的通信可以通过共享内存实现，性能较高。而进程之间的通信则需要通过网络连接或管道 (经过内核)，一些程序使用线程来解决管理多个 I/O 资源的功能。
 
 ### 8.4.2 Viewing Threads
 
-默认情况下，`ps` 和 `top` 命令只显示进程的信息
+默认情况下，`ps` 和 `top` 命令只显示进程的信息。若想查看线程：
 
-若想查看线程：
-
-```bash
+```console
 $ ps m
   PID TTY      STAT   TIME COMMAND
  4504 tty2     -      0:00 /usr/lib/ibus/ibus-engine-simple
@@ -285,12 +230,12 @@ $ ps m
     - -        S+     0:00 -
 ```
 
-* `14847` 进程只有一个线程
-* `4504` 进程存在三个线程
+- `14847` 进程只有一个线程
+- `4504` 进程存在三个线程
 
 查看线程号：
 
-```bash
+```console
 $ ps m -o <pid>,<tid>,<command>
   PID   TID COMMAND
  4504     - /usr/lib/ibus/ibus-engine-simple
@@ -301,36 +246,24 @@ $ ps m -o <pid>,<tid>,<command>
     - 14847 -
 ```
 
-* 与进程号相同的线程号对应的线程是主线程
+与进程号相同的线程号对应的线程是主线程。
 
-由于线程可能同时消费资源
-
-对于资源监控来说可能会导致一些误解
-
-所以大部分资源监控程序默认看不到线程信息
-
-如果想要查看线程，需要一些 extra work
-
----
-
-## 8.5 Introduction to Resource Monitoring
-
----
+由于线程可能同时消费资源，对于资源监控来说可能会导致一些误解，所以大部分资源监控程序默认看不到线程信息。如果想要查看线程，需要一些 extra work。
 
 ## 8.6 Measuring CPU Time
 
 监测一个或多个进程：
 
 ```bash
-$ top -p <pid1> [-p <pid2> ...]
+top -p <pid1> [-p <pid2> ...]
 ```
 
-查看一个进程花了多少 CPU 时间，使用 `time`
+查看一个进程花了多少 CPU 时间，使用 `time`：
 
-* 注意，大部分 shell 内置了 `time`，不会提供很多数据
-* 需要使用 `/usr/bin/time`
+- 注意，大部分 shell 内置了 `time`，不会提供很多数据
+- 需要使用 `/usr/bin/time`
 
-```bash
+```console
 $ /usr/bin/time ls
 0.00user 0.00system 0:00.00elapsed 100%CPU (0avgtext+0avgdata 2748maxresident)k
 0inputs+0outputs (0major+113minor)pagefaults 0swaps
@@ -338,119 +271,63 @@ $ /usr/bin/time ls
 
 可以看到其中有三种时间：
 
-* __User time__ - CPU 执行该程序自身代码的秒数
-* __System time__ - 内核处理时间
-* __Elapsed time__ - 从进程开始到结束的总时间，包含中途 CPU 处理其它任务的时间
-
----
+- User time：CPU 执行该程序自身代码的秒数
+- System time：内核处理时间
+- Elapsed time：从进程开始到结束的总时间，包含中途 CPU 处理其它任务的时间
 
 ## 8.7 Adjusting Process Priorities
 
-为了给某一个进程更多或更少的 CPU 时间
+为了给某一个进程更多或更少的 CPU 时间，我们可以改变内核调度进程的行为。内核根据每个进程的 *scheduling priority* 来调度进程。这个优先级是一个 `-20` 到 `20` 之间的数，`-20` 为最高优先级。
 
-我们可以改变内核调度进程的行为
+通过 `ps -l` 或者 `top` 命令中的 `PR`，可以查看这个优先级。优先级的数值越高，内核越不会调度该进程。但是仅仅调度优先级本身并不决定内核是否分配时间片给该进程。随着程序执行，和 CPU 的使用时间，该优先级会不断变化。
 
-内核根据每个进程的 _scheduling priority_ 来调度进程
+在 `top` 命令的 `PR` 列旁边是 nice value：`NI` 列。当试图干涉内核的进程调度时，可以通过修改这个值实现。内核会将这个值与优先级相加，来决定下一个时间片的分配权，默认 NI 为 0。
 
-* 这个优先级是一个 `-20` 到 `20` 之间的数
-* `-20` 为最高优先级
-
-通过 `ps -l` 或者 `top` 命令中的 `PR`，可以查看这个优先级
-
-优先级的数值越高，内核越不会调度该进程
-
-但是仅仅调度优先级本身并不决定内核是否分配时间片给该进程
-
-* 随着程序执行，和 CPU 的使用时间，该优先级会不断变化
-
-在 `top` 命令的 `PR` 列旁边是 _nice value_ - `NI` 列
-
-当试图干涉内核的进程调度时，可以通过修改这个值实现
-
-内核会将这个值与优先级相加，来决定下一个时间片的分配权
-
-* 默认 NI 为 0
-
-如果想要运行一个高运算量的程序，又不想它使用太多 CPU 从而干扰正常进程
-
-可以提高其优先级的数值：
+如果想要运行一个高运算量的程序，又不想它使用太多 CPU 从而干扰正常进程，可以提高其优先级的数值：
 
 ```bash
-$ renice 20 <pid>
+renice 20 <pid>
 ```
 
-超级用户可以将 NI 的值设为负数，从而提升程序被调度的可能性
-
-但是这是个坏主意。。。因为可能会让正常的系统进程没有足够的 CPU 时间
-
----
+超级用户可以将 NI 的值设为负数，从而提升程序被调度的可能性。但是这是个坏主意。。。因为可能会让正常的系统进程没有足够的 CPU 时间。
 
 ## 8.8 Load Averages
 
-_Load average_ 是目前已经准备好运行的进程的数量
-
-即，能够在任何时间开始使用 CPU 的进程数量
-
-大部分进程应当都是在等待输入
-
-* 因此它们不属于就绪进程，不包含在 load average 中
+Load average 是目前已经准备好运行的进程的数量，即能够在任何时间开始使用 CPU 的进程数量。大部分进程应当都是在等待输入，因此它们不属于就绪进程，不包含在 load average 中。
 
 ### 8.8.1 Using uptime
 
 `uptime` 命令能够告诉你内核运行的时间，以及三个 load averages 的数值：
 
-```bash
+```console
 $ uptime
  16:38:52 up 31 min,  3 users,  load average: 7.96, 6.25, 3.44
 ```
 
-分别代表过去 1 min、5 min、15 min 的 load average
+分别代表过去 1 min、5 min、15 min 的 load average。大部分时间应当都是 `0.x`，除非编译程序或者打游戏。
 
-大部分时间应当都是 `0.x`，除非编译程序或者打游戏
-
-> 好叭。在运行这个命令时，我正好在编译 gcc-6.5.0 😏
+> 好叭。在运行这个命令时，我正好在编译 gcc-6.5.0 😏~
 
 ### 8.8.2 High Loads
 
-如果说 load average 较高
+如果说 load average 较高，说明多个进程正在等待被调度，需要的时间会比它们依次完全执行的时间更多一些 (切换的代价)。
 
-说明多个进程正在等待被调度
+还有一种可能 - Web server：进程被频繁创建和销毁，load average 的衡量机制可能不太准确。
 
-* 需要的时间会比它们依次完全执行的时间更多一些（切换的代价）
+或者 - 可能存在内存性能问题：当系统内存较低时，内核开始 *thrash*，或从磁盘上快速交换内存：
 
-还有一种可能 - Web server
-
-* 进程被频繁创建和销毁
-* load average 的衡量机制可能不太准确
-
-或者 - 可能存在内存性能问题
-
-当系统内存较低时，内核开始 _thrash_，或从磁盘上快速交换内存
-
-* 很多进程可能已经就绪，但内存暂时不可用
-* 从而导致它们停留在 ready-to-run 状态，并被 load average 计算在其中
-
----
+- 很多进程可能已经就绪，但内存暂时不可用
+- 从而导致它们停留在 ready-to-run 状态，并被 load average 计算在其中
 
 ## 8.9 Memory
 
-可以通过 `free` 命令或查看 `/proc/meminfo` 来得知内存使用状况
+可以通过 `free` 命令或查看 `/proc/meminfo` 来得知内存使用状况。
 
 ### 8.9.1 How Memory Works
 
-CPU 中有一个 memory management unit (MMU) 将虚拟地址翻译为物理地址
+CPU 中有一个 memory management unit (MMU) 将虚拟地址翻译为物理地址。内核通过将内存切分为 **pages** 来协助 MMU。内核维护一个数据结构：page table，包含了一个进程的虚拟地址到物理地址的映射。
 
-内核通过将内存切分为 __pages__ 来协助 MMU
-
-内核维护一个数据结构 - __page table__
-
-* 包含了一个进程的虚拟地址到物理地址的映射
-
-用户进程实际上不需要它的所有 page 都位于内存中
-
-* 内核只会在进程需要某一页时装载或分配 - 即所谓 _on-demand paging_
-
-试考虑一个程序开始运行 - 新的进程：
+用户进程实际上不需要它的所有 page 都位于内存中。内核只会在进程需要某一页时装载或分配 - 即所谓 *on-demand paging*。试考虑一个程序开始运行 - 新的进程：
 
 1. 内核将程序开头的指令装进内存页中
 2. 内核为新的进程分配一些 working-memory 页
@@ -459,35 +336,29 @@ CPU 中有一个 memory management unit (MMU) 将虚拟地址翻译为物理地�
 
 ### 8.9.2 Page Faults
 
-如果进程想要使用的 page 不在内存中时，进程会触发一次 _page fault_
-
-内核介入，将需要的 page 准备好
-
-存在两种类型的 page fault：
+如果进程想要使用的 page 不在内存中时，进程会触发一次 *page fault*。内核介入，将需要的 page 准备好。存在两种类型的 page fault：
 
 #### Minor Page Faults
 
 这种缺页发生于：
 
-* 需要的 page 已经在主存中，但 MMU 不知道它在哪里
-* 比如一个进程需要更多的内存，而 MMU 没有多余的空间储存所有页的信息
-* 内核会告诉 MMU 页的位置，并让进程继续执行
+- 需要的 page 已经在主存中，但 MMU 不知道它在哪里
+- 比如一个进程需要更多的内存，而 MMU 没有多余的空间储存所有页的信息
+- 内核会告诉 MMU 页的位置，并让进程继续执行
 
-> 是不是 TLB 缺失的意思？
->
-> 这种缺页实际上不需要访问磁盘
+> 是不是 TLB 缺失的意思？这种缺页实际上不需要访问磁盘。
 
 #### Major Page Faults
 
-* 需要的 page 不在主存中
-* 内核必须将其从磁盘或其它低速存储介质中装入内存
-* 大量的 major page faults 会导致系统性能下降
+- 需要的 page 不在主存中
+- 内核必须将其从磁盘或其它低速存储介质中装入内存
+- 大量的 major page faults 会导致系统性能下降
 
-Major page faults 不可避免，尤其是第一次载入程序，或系统用尽内存需要频繁 swap 的时候
+Major page faults 不可避免，尤其是第一次载入程序，或系统用尽内存需要频繁 swap 的时候。
 
 #### Watching Page Faults
 
-```bash
+```console
 $ /usr/bin/time cal > /dev/null
 0.00user 0.00system 0:00.00elapsed 0%CPU (0avgtext+0avgdata 2384maxresident)k
 64inputs+0outputs (1major+93minor)pagefaults 0swaps
@@ -498,17 +369,15 @@ $ /usr/bin/time cal > /dev/null
 
 再运行一次会发现 major page fault 没了，因此内核已经在内存中缓存了该页
 
-```bash
+```console
 $ ps -o pid,min_flt,maj_flt 1545
   PID  MINFL  MAJFL
  1545  11714     40
 ```
 
----
-
 ## 8.10 Monitoring CPU and Memory Performance with vmstat
 
-```bash
+```console
 $ vmstat 2
 procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
  r  b 交换 空闲 缓冲 缓存   si   so    bi    bo   in   cs us sy id wa st
@@ -526,37 +395,35 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
 
 `2` 表示两秒钟打印一次
 
-* `procs` 表示 processes
-* `memory` 表示内存使用
-* `swap` 表示从交换分区上进入或出去的页数
-* `io` 表示磁盘占用
-* `system` 表示内核切进内核代码的次数
-* `cpu` 表示系统各部分使用 CPU 的时间
+- `procs` 表示 processes
+- `memory` 表示内存使用
+- `swap` 表示从交换分区上进入或出去的页数
+- `io` 表示磁盘占用
+- `system` 表示内核切进内核代码的次数
+- `cpu` 表示系统各部分使用 CPU 的时间
 
 ### swap
 
-* `si` - swap in
-* `so` - swap out
+- `si` - swap in
+- `so` - swap out
 
 ### cpu
 
-* `us` - CPU 花在用户任务上的时间
-* `sy` - CPU 花在内核上的时间
-* `id` - 空闲时间
-* `wa` - 等待 I/O 的时间
+- `us` - CPU 花在用户任务上的时间
+- `sy` - CPU 花在内核上的时间
+- `id` - 空闲时间
+- `wa` - 等待 I/O 的时间
 
 ### io
 
-* `bi` - block in
-* `bo` - block out
-
----
+- `bi` - block in
+- `bo` - block out
 
 ## 8.11 Monitoring
 
 ### 8.11.1 Using iostat
 
-```bash
+```console
 $ iostat
 Linux 4.15.0-55-generic (zjt-ubuntu)    2019年07月06日  _x86_64_        (8 CPU)
 
@@ -590,9 +457,9 @@ loop19            0.00         0.00         0.00          8          0
 
 ### 8.11.2 Per-process I/O Utilization and Monitoring: iotop
 
-是少有的几个可以看到 `TID` 的命令
+是少有的几个可以看到 `TID` 的命令：
 
-```bash
+```console
 $ sudo iotop
 Total DISK READ :       0.00 B/s | Total DISK WRITE :      11.72 K/s
 Actual DISK READ:       0.00 B/s | Actual DISK WRITE:     171.88 K/s
@@ -624,11 +491,9 @@ Actual DISK READ:       0.00 B/s | Actual DISK WRITE:     171.88 K/s
 * `rt` - Real-time - 内核优先调度任何实时 I/O
 * `idle` - 在没有其它 I/O 可以调度时才会被调度
 
----
-
 ## 8.12 Per-Process Monitoring with pidstat
 
-```bash
+```console
 $ pidstat -p 1937
 Linux 4.15.0-55-generic (zjt-ubuntu)    2019年07月06日  _x86_64_        (8 CPU)
 
@@ -636,9 +501,5 @@ Linux 4.15.0-55-generic (zjt-ubuntu)    2019年07月06日  _x86_64_        (8 CP
 17时59分21秒  1000      1937    0.01    0.00    0.00    0.00    0.01     1  evolution-calen
 ```
 
----
-
 ## 8.13 Further Topics
-
----
 
