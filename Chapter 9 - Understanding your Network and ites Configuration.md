@@ -18,7 +18,7 @@ Created by : Mr Dk.
 
 内核通过路由表决定将 packet 路由到何处
 
-```bash
+```console
 $ route -n
 内核 IP 路由表
 目标            网关            子网掩码        标志  跃点   引用  使用 接口
@@ -68,7 +68,7 @@ DNS 解析过程：
 
 查看本机目前已经建立的连接：
 
-```bash
+```console
 $ netstat -nt
 Proto Recv-Q Send-Q Local Address           Foreign Address         State
 tcp        0    192 192.168.2.104:22        192.168.2.102:50660     ESTABLISHED
@@ -85,7 +85,7 @@ tcp        0    192 192.168.2.104:22        192.168.2.102:50660     ESTABLISHED
 
 查看所有正被监听的 TCP 端口：
 
-```bash
+```console
 $ netstat -ntl
 激活Internet连接 (仅服务器)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State
@@ -100,7 +100,7 @@ tcp6       0      0 ::1:631                 :::*                    LISTEN
 
 在 `/etc/services` 中可以查到熟知端口号和对应的服务：
 
-```bash
+```console
 $ cat /etc/services
 # Network services, Internet style
 #
@@ -155,7 +155,7 @@ Linux 内核默认不会自动将 packet 从一个子网传输到另一个子网
 
 需要手动开启 IP 转发
 
-```bash
+```console
 $ sudo sysctl -w net.ipv4.ip_forward
 ```
 

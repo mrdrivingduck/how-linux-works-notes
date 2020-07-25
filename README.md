@@ -1,6 +1,6 @@
 # how-linux-works-notes
 
-🐧 Notes of studying _How Linux Works_.
+🐧 Notes of studying *How Linux Works*.
 
 Created by : Mr Dk.
 
@@ -10,7 +10,7 @@ Created by : Mr Dk.
 
 ## About
 
-Some basic knowledge of using Linux.
+Some basic knowledge of using Linux. Notes of *How Linux Works: What Every Superuser Should Know, 2nd edition* by *Brian Ward*.
 
 ## License
 

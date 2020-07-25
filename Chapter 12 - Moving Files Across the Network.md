@@ -18,7 +18,7 @@ Created by : Mr Dk.
 
 到包含想拷贝文件的目录中，执行：
 
-```bash
+```console
 $ python -m SimpleHTTPServer
 ```
 
@@ -42,7 +42,7 @@ $ python -m SimpleHTTPServer
 
 现在的系统中，rsync 默认使用 SSH 来连接远程主机：
 
-```bash
+```console
 $ rsync <file1> <file2> ... user@host:<dest_dir>
 ```
 
@@ -50,7 +50,7 @@ $ rsync <file1> <file2> ... user@host:<dest_dir>
 
 为了拷贝目录中的完整信息，包括符号链接、权限、设备等，使用 `-a` 选项：
 
-```bash
+```console
 $ rsync -a <dir> user@host:<dest_dir>
 ```
 
@@ -65,7 +65,7 @@ $ rsync -a <dir> user@host:<dest_dir>
 
 为了在拷贝过程中保持与源目录完全相同，使用 `--delete` 选项将目标目录中的已有文件删除：
 
-```bash
+```console
 $ rsync -a --delete <dir> user@host:<dest_dir>
 ```
 
@@ -73,7 +73,7 @@ $ rsync -a --delete <dir> user@host:<dest_dir>
 
 在 rsync 中拷贝目录时需要格外小心
 
-```bash
+```console
 $ rsync -a dir user@host:<dest_dir>
 $ rsync -a dir/ user@host:<dest_dir>
 ```
@@ -88,7 +88,7 @@ $ rsync -a dir/ user@host:<dest_dir>
 
 ### 12.2.4 Excluding Files and Directories
 
-```bash
+```console
 $ rsync -a --exclude=.git <dir> user@host:<dest_dir>
 ```
 
@@ -96,7 +96,7 @@ $ rsync -a --exclude=.git <dir> user@host:<dest_dir>
 
 如果只是想忽略某一个 `.git`，就需要使用绝对路径：
 
-```bash
+```console
 $ rsync -a --exclude=/src/.git <dir> user@host:<dest_dir>
 ```
 
@@ -127,7 +127,7 @@ $ rsync -a --exclude=/src/.git <dir> user@host:<dest_dir>
 
 在传输之间压缩数据 - `-z` 选项：
 
-```bash
+```console
 $ rsync -az <dir> user@host:<dest_dir>
 ```
 
@@ -139,7 +139,7 @@ $ rsync -az <dir> user@host:<dest_dir>
 
 限制带宽为 `10000` Kpbs：
 
-```bash
+```console
 $ rsync --bwlimit=10000 -a <dir> user@host:<dest_dir>
 ```
 
@@ -147,7 +147,7 @@ $ rsync --bwlimit=10000 -a <dir> user@host:<dest_dir>
 
 与 `scp` 类似，可以双向拷贝：
 
-```bash
+```console
 $ rsync -a user@host:<src_dir> <dest_dir>
 ```
 

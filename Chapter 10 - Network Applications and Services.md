@@ -65,7 +65,7 @@ SSH version 2 有 RSA 和 DSA 密钥
 
 ### 10.3.2 The SSH Client
 
-```bash
+```console
 $ ssh username@host
 ```
 
@@ -81,7 +81,7 @@ $ ssh username@host
 
 #### SSH File Transfer Clients
 
-```bash
+```console
 $ scp user1@host1:file user2@host2:dir
 ```
 
@@ -107,7 +107,7 @@ $ scp user1@host1:file user2@host2:dir
 
 也可以查看所有正在监听端口的程序：
 
-```bash
+```console
 $ lsof -i
 COMMAND     PID            USER   FD   TYPE  DEVICE SIZE/OFF NODE NAME
 systemd-r   617 systemd-resolve   12u  IPv4   14501      0t0  UDP localhost:domain
@@ -123,7 +123,7 @@ sshd      17879            root    3u  IPv4 1012568      0t0  TCP client-23-254-
 
 使用 `-n` 选项禁止 IP 地址和熟知端口的反向解析：
 
-```bash
+```console
 $ lsof -n -i
 COMMAND     PID            USER   FD   TYPE  DEVICE SIZE/OFF NODE NAME
 systemd-r   617 systemd-resolve   12u  IPv4   14501      0t0  UDP 127.0.0.53:domain
@@ -143,13 +143,13 @@ sshd      17879            root    3u  IPv4 1012568      0t0  TCP 23.254.225.164
 
 ### 10.5.3 netcat
 
-```bash
+```console
 $ netcat host port
 ```
 
 监听一个特定端口：
 
-```bash
+```console
 $ netcat -l -p port_number
 ```
 
@@ -157,7 +157,7 @@ $ netcat -l -p port_number
 
 Network Mapper (Nmap) 程序可以扫描一台机器所有开放的端口
 
-```bash
+```console
 $ nmap 103.235.46.39
 
 Starting Nmap 7.60 ( https://nmap.org ) at 2019-07-09 13:32 UTC
@@ -229,7 +229,7 @@ Unix domain socket 实际上没有使用网络
 
 查看所有的 Unix domain sockets
 
-```bash
+```console
 $ lsof -U
 COMMAND     PID             USER   FD   TYPE             DEVICE SIZE/OFF    NODE NAME
 systemd       1             root   14u  unix 0xffff965bb6e90c00      0t0   11703 /run/systemd/notify type=DGRAM

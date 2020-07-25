@@ -14,7 +14,7 @@ Created by : Mr Dk.
 
 而 LLVM 中的 `clang` 正越来越受欢迎
 
-```bash
+```console
 $ cc hello.c
 ```
 
@@ -22,7 +22,7 @@ $ cc hello.c
 
 当然也可以生成指定名称的可执行文件：
 
-```bash
+```console
 $ cc -o hello hello.c
 ```
 
@@ -30,7 +30,7 @@ $ cc -o hello hello.c
 
 使用 `-c` 选项将源文件编译为目标文件：
 
-```bash
+```console
 $ cc -c main.c
 ```
 
@@ -45,7 +45,7 @@ $ cc -c main.c
 
 这些工作会由编译器完成
 
-```bash
+```console
 $ cc -o my_program main.o other.o
 ```
 
@@ -63,7 +63,7 @@ Unix 中默认的 include 目录是 `/usr/include`
 
 如果想指定一个 include 目录：
 
-```bash
+```console
 $ cc -c -I/usr/somewhere/include main.c
 ```
 
@@ -108,7 +108,7 @@ C 库是一个预编译的函数集合
 
 如果某个库位于非默认路径，则需要用 `-L` 参数来告诉链接器库的位置：
 
-```bash
+```console
 $ cc -o main main.o -lgobject -L/usr/somewhere/lib -lcrud
 ```
 
@@ -149,7 +149,7 @@ $ cc -o main main.o -lgobject -L/usr/somewhere/lib -lcrud
 
 使用 `ldd` 命令查看程序使用的所有动态库：
 
-```bash
+```console
 $ ldd /bin/bash
         linux-vdso.so.1 (0x00007ffe0d4ee000)
         libtinfo.so.5 => /lib/x86_64-linux-gnu/libtinfo.so.5 (0x00007f7ac707d000)
@@ -178,7 +178,7 @@ $ ldd /bin/bash
 
 如果改动了 `ld.so.conf` 中的目录，需要 rebuild `/etc/li.so.cache` 文件：
 
-```bash
+```console
 $ ldconfig -v
 ```
 
@@ -186,7 +186,7 @@ $ ldconfig -v
 
 #### Linking Programs Against Shared Libraries
 
-```bash
+```console
 $ cc -o main main.o -Wl,-rpath=/opt/... -L/opt/... -lweird
 ```
 
@@ -259,7 +259,7 @@ myprog: $(OBJS)
   * `myprog` 可以是另一个目标，也可以是文件
 * 宏展开后：`myprog: aux.o main.o`，说明 `myprog` 依赖这两个文件
 
-```bash
+```console
 $ make
 cc    -c -o aux.o aux.c
 cc    -c -o main.o main.c
@@ -289,7 +289,7 @@ cc -o myprog aux.o main.o
 
 在运行 make 命令时，可以执行宏：
 
-```bash
+```console
 $ make CC=clang
 ```
 
@@ -373,13 +373,13 @@ boring: $(BORING_OBJS)
 
 进入 `(gdb)` 的命令模式：
 
-```bash
+```console
 $ gdb <program>
 ```
 
 带参数运行程序：
 
-```bash
+```console
 (gdb) run <options>
 Starting program: /home/zhangjingtang/main
 Hello world
@@ -388,25 +388,25 @@ Hello world
 
 打印变量的值：
 
-```bash
+```console
 (gdb) print <variable>
 ```
 
 设断点：
 
-```bash
+```console
 (gdb) break <file>:<line>
 ```
 
 继续执行：
 
-```bash
+```console
 (gdb) continue
 ```
 
 清除断点：
 
-```bash
+```console
 (gdb) clear <file>:<line>
 ```
 

@@ -97,7 +97,7 @@ Unix 系统允许多个独立用户存在
 
 明文的 `/etc/passwd` 将 usernames 和 user IDs 进行映射
 
-```bash
+```console
 $ cat /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:*:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -176,7 +176,7 @@ Linux 通常为新用户创建一个同名的 group
 
 `getty` 是绑定 terminal 并显示登录界面的程序
 
-```bash
+```console
 $ ps ao args | grep getty
 /sbin/agetty --noclear tty1 linux
 /sbin/agetty --keep-baud 115200 38400 9600 ttyS0 vt220
@@ -209,7 +209,7 @@ PC 硬件中包含一个电池供电的 _real-time clock (RTC)_
 
 内核的系统时钟将目前时间表示为 1970.1.1 00:00 到现在的秒数：
 
-```bash
+```console
 $ date +%s
 1561984433
 ```
@@ -268,7 +268,7 @@ cron 工具是 Linux 最古老的组件之一
 
 使用 `at` 服务运行将来某个时刻只执行一次的命令
 
-```bash
+```console
 $ at 22:30
 at> myjob
 ```
@@ -307,7 +307,7 @@ Linux 默认 euid 和 ruid 相同
 
 `ps` 等程序默认展示 euid
 
-```bash
+```console
 $ ps -eo pid,euser,ruser,comm
 ```
 
@@ -396,7 +396,7 @@ Function Type 和 Module 共同决定了 PAM 的动作
 
 PAM 从哪里获得密码加密的模式呢？
 
-```bash
+```console
 $ grep password.*unix /etc/pam.d/*
 /etc/pam.d/password-auth:password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
 /etc/pam.d/password-auth-ac:password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok

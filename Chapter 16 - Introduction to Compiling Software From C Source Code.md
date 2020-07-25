@@ -66,7 +66,7 @@ GNU autoconf 是一个用于自动生成 makefile 的系统
 
 从而生成最终的 makefile：
 
-```bash
+```console
 $ ./configure
 ```
 
@@ -78,7 +78,7 @@ $ ./configure
 
 ### 16.3.2 Installing Using a Packaging Tool
 
-```bash
+```console
 $ checkinstall make install
 ```
 

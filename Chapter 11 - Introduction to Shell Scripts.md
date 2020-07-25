@@ -30,7 +30,7 @@ echo a b c
 
 在创建脚本后，需要对脚本设置权限：
 
-```bash
+```console
 $ chmod +rx <script_name>
 ```
 
@@ -187,7 +187,7 @@ test 分三种类型：
 
 #### File Tests
 
-```bash
+```console
 [ -f file ]
 [ file1 -nt file2 ]
 ```
@@ -312,7 +312,7 @@ trap "rm -f $TMPFILE; exit 1" INT
 
 ### 11.10.1 basename
 
-```bash
+```console
 $ basename example.html .html
 $ basename /usr/local/bin/example
 ```
@@ -344,7 +344,7 @@ $ basename /usr/local/bin/example
 
 在 shell 中进行数学运算：
 
-```bash
+```console
 $ expr 1 + 2
 3
 ```
