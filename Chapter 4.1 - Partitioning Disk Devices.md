@@ -8,24 +8,20 @@ Created by : Mr Dk.
 
 ---
 
-Linux 磁盘的组织格式。分区 (Partitions) 是整个硬盘的 subdivisions。在 Linux 中，它们被表示为整体 block device 之后的编号。
-
-* 比如 `/dev/sda1`
+Linux 磁盘的组织格式。分区 (Partitions) 是整个硬盘的 subdivisions。在 Linux 中，它们被表示为整体 block device 之后的编号，比如 `/dev/sda1`。
 
 内核将每一个分区视为一个 block device。分区表定义了硬盘上的分区，放置在硬盘上的小一块区域上。在每个分区上，可以运行文件系统，存放了文件和目录的数据。如果想要访问文件中的数据：
 
-* 在分区表中找到分区位置
-* 查找分区上的文件系统数据库
-* 访问文件
+1. 在分区表中找到分区位置
+2. 查找分区上的文件系统数据库
+3. 访问文件
 
 内核通过 block device interface 和 SCSI 子系统访问磁盘硬件。
 
----
-
 分区表的类型有很多种：
 
-* *Master Boot Record, MBR* - 传统分区表
-* *Globally Unique Identifier Partition Table, GPT* - 新标准
+- *Master Boot Record, MBR*：传统分区表
+- *Globally Unique Identifier Partition Table, GPT*：新标准
 
 ### 4.1.1 Viewing a Partition Table
 
@@ -45,9 +41,9 @@ Number  Start   End     Size    File system  Name  Flags
 
 `parted` 程序所谓的 *msdos* 就是传统的 MBR 分区表。MBR 表包含：
 
-* Primary partitions - 主分区
-* Extended partitions - 扩展分区
-* Logical partitions - 逻辑分区
+- Primary partitions - 主分区
+- Extended partitions - 扩展分区
+- Logical partitions - 逻辑分区
 
 基本的 MBR 最多允许四个主分区。可以指定一个扩展分区，并将扩展分区划分为逻辑分区。
 
@@ -83,6 +79,4 @@ $ dmesg
 ### 4.1.4 Solid-State Disks (SSDs)
 
 内部没有移动的部分，每次以块 (typically 4096B) 为单位读取数据。读取必须从块大小的整数倍的位置开始读取，如果数据跨过了块大小边界，则需要多次读取。很多分区工具保证了在磁盘起始位置的合适偏移量处放置新分区，用户不需要关心分区组织。
-
----
 

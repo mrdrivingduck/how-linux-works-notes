@@ -10,102 +10,66 @@ Created by : Mr Dk.
 
 又是水得不行的一章... 🤨
 
----
-
-## 10.1 The Basics of Services
-
----
-
 ## 10.2 Network Servers
 
-* _httpd_, _apache_, _apache2_ - Web servers
-* _sshd_ - Secure shell
-* _postfix_, _qmail_, _sendmail_ - Mail servers
-* _cupsd_ - Print server
-* _nfsd_, _mountd_ - Network filesystem daemons
-* _smbd_, _nmbd_ - WIndows file-sharing daemons
-* _rpcbind_ - Remote procedure call (RPC) portmap service deamon
+- *httpd*, *apache*, *apache2*：Web servers
+- *sshd*：Secure shell
+- *postfix*, *qmail*, *sendmail*：Mail servers
+- *cupsd*：Print server
+- *nfsd*, *mountd*：Network filesystem daemons
+- *smbd*, *nmbd*：WIndows file-sharing daemons
+- *rpcbind*：Remote procedure call (RPC) portmap service deamon
 
-网络服务器的共同特征：多进程
+网络服务器的共同特征：多进程。
 
-* 至少一个进程监听端口
-* 当接收到连接后，监听进程使用 `fork()` 创建新的子进程处理连接
-* 同时，监听进程继续监听端口
+- 至少一个进程监听端口
+- 当接收到连接后，监听进程使用 `fork()` 创建新的子进程处理连接
+- 同时，监听进程继续监听端口
 
-其中，调用 `fork()` 给系统带来了较大开销
-
-因此，一些高性能的 TCP 服务器会在启动时创建大量工作进程 - _worker process_
-
----
+其中，调用 `fork()` 给系统带来了较大开销。因此，一些高性能的 TCP 服务器会在启动时创建大量工作进程：worker process。
 
 ## 10.3 Secure Shell (SSH)
 
-支持远程登录、程序执行、文件共享
-
-使用公钥密码体制替代了老旧的、不安全的 `telnet` 和 `rlogin`
-
-_OpenSSH_ 是最受欢迎的免费 SSH 实现
+支持远程登录、程序执行、文件共享。使用公钥密码体制替代了老旧的、不安全的 `telnet` 和 `rlogin`。*OpenSSH* 是最受欢迎的免费 SSH 实现。
 
 ### 10.3.1 The SSHD Server
 
-运行 `sshd` 服务需要一个配置文件和密钥 - `/etc/ssh`
+运行 `sshd` 服务需要一个配置文件和密钥：`/etc/ssh`
 
-* 服务器配置文件：`sshd_config`
-* 客户端配置文件：`ssh_config`
+- 服务器配置文件：`sshd_config`
+- 客户端配置文件：`ssh_config`
 
-服务器配置文件中可以配置监听端口和密钥路径
+服务器配置文件中可以配置监听端口和密钥路径。
 
 #### Host Keys
 
-SSH version 1 只有 RSA 密钥
-
-SSH version 2 有 RSA 和 DSA 密钥
-
-使用 `ssh-keygen` 可以生成公私钥对
+SSH version 1 只有 RSA 密钥，SSH version 2 有 RSA 和 DSA 密钥。使用 `ssh-keygen` 可以生成公私钥对。
 
 ### 10.3.2 The SSH Client
 
-```console
-$ ssh username@host
+```bash
+ssh username@host
 ```
 
-在 `.ssh/known_hosts` 中保存了远程服务器的公钥
-
-如果远程服务器的公钥与以前的公钥发生了冲突
-
-* 比如替换了硬件或操作系统
-
-将会产生警告
-
-将以前的公钥记录删除即可
+在 `.ssh/known_hosts` 中保存了远程服务器的公钥。如果远程服务器的公钥与以前的公钥发生了冲突，比如替换了硬件或操作系统，将会产生警告。将以前的公钥记录删除即可。
 
 #### SSH File Transfer Clients
 
-```console
-$ scp user1@host1:file user2@host2:dir
+```bash
+scp user1@host1:file user2@host2:dir
 ```
 
-`sftp` 使用 `get` 和 `put` 命令，服务器需要运行 `sftp-server`
-
----
+`sftp` 使用 `get` 和 `put` 命令，服务器需要运行 `sftp-server`。
 
 ## 10.4 The inetd and xinetd Daemons
 
-为了避免分别运行每种服务的麻烦
-
-`inetd` 读取配置文件，监听对应的端口
-
-当接受到连接时，`inetd` 将连接分配到对应的进程
-
----
+为了避免分别运行每种服务的麻烦，`inetd` 读取配置文件，监听对应的端口。当接受到连接时，`inetd` 将连接分配到对应的进程。
 
 ## 10.5 Diagnostic Tools
 
 ### 10.5.1 lsof
 
-`lsof` 可用于追踪所有打开的文件
-
-也可以查看所有正在监听端口的程序：
+`lsof` 可用于追踪所有打开的文件，也可以查看所有正在监听端口的程序：
 
 ```console
 $ lsof -i
@@ -137,25 +101,25 @@ ssserver   1178            root    8u  IPv4   20300      0t0  UDP *:50810
 sshd      17879            root    3u  IPv4 1012568      0t0  TCP 23.254.225.164:ssh->157.0.78.120:65096 (ESTABLISHED)
 ```
 
-并可以使用各种过滤规则
+并可以使用各种过滤规则。
 
 ### 10.5.2 tcpdump
 
 ### 10.5.3 netcat
 
-```console
-$ netcat host port
+```bash
+netcat host port
 ```
 
 监听一个特定端口：
 
-```console
-$ netcat -l -p port_number
+```bash
+netcat -l -p port_number
 ```
 
 ### 10.5.4 Port Scanning
 
-Network Mapper (Nmap) 程序可以扫描一台机器所有开放的端口
+Network Mapper (Nmap) 程序可以扫描一台机器所有开放的端口：
 
 ```console
 $ nmap 103.235.46.39
@@ -171,63 +135,29 @@ PORT    STATE SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 20.10 seconds
 ```
 
----
-
 ## 10.6 Remote Procedure Call (RPC)
 
-在远程机器上调用函数，并返回一个结果码或消息
-
-RPC 的实现需要将程序编号和传输层端口号映射
-
----
-
-## 10.7 Network Security
-
----
-
-## 10.8 Looking Forward
-
----
+在远程机器上调用函数，并返回一个结果码或消息。RPC 的实现需要将程序编号和传输层端口号映射。
 
 ## 10.9 Sockets: How Processes Communicate with the Network
 
-Socket 是进程通过内核访问网络的接口
+Socket 是进程通过内核访问网络的接口，表示了用户空间和内核之间的界限，也被用于进程间通信 (inter-process communication, IPC)。有多种不同类型的 socket：
 
-* 表示了用户空间和内核之间的界限
-
-也被用于进程间通信 (inter-process communication, IPC)
-
-有多种不同类型的 socket：
-
-* stream socket - `SOCK_STREAM` 用于 TCP
-* datagram sockets - `SOCK_DGRAM` 用于 UDP
-
----
+- stream socket：`SOCK_STREAM` 用于 TCP
+- datagram sockets：`SOCK_DGRAM` 用于 UDP
 
 ## 10.10 Unix Domain Sockets
 
-在同一台机器上运行的进程，使用进程间通信进行沟通
-
-进程使用本地 IP 地址 _localhost_ 进行通信
-
-* 使用的是一种特殊类型的 socket - _Unix domain socket_
-
-Unix domain socket 实际上没有使用网络
-
-甚至都不需要网络被配置就能使用
-
-也不需要绑定任何的 socket 文件
-
-进程创建的未命名 socket 可以直接通过地址被其它进程共享
+在同一台机器上运行的进程，使用进程间通信进行沟通。进程使用本地 IP 地址 *localhost* 进行通信，使用的是一种特殊类型的 socket：Unix domain socket。Unix domain socket 实际上没有使用网络，甚至都不需要网络被配置就能使用，也不需要绑定任何的 socket 文件。进程创建的未命名 socket 可以直接通过地址被其它进程共享。
 
 ### 10.10.1 Advantages for Developers
 
-* 便于访问控制
-* 不需要进入协议栈，性能更好
+- 便于访问控制
+- 不需要进入协议栈，性能更好
 
 ### 10.10.2 Listing Unix Domain Sockets
 
-查看所有的 Unix domain sockets
+查看所有的 Unix domain sockets：
 
 ```console
 $ lsof -U
@@ -373,6 +303,4 @@ systemd     967             root   26u  unix 0xffff965bbcd43c00      0t0   18891
 (sd-pam     974             root    7u  unix 0xffff965bbaf3c000      0t0   18820 type=DGRAM
 sshd      18762             root    4u  unix 0xffff965bba97c800      0t0 1019393 type=DGRAM
 ```
-
----
 

@@ -8,20 +8,14 @@ Created by : Mr Dk.
 
 ---
 
-理解当内核发现新设备时，如何与用户空间进行交互
-
-udev 系统使用户空间程序能够自动配置并使用新设备
-
-内核如何通过 udev 向用户进程发消息？
-
----
+理解当内核发现新设备时，如何与用户空间进行交互。udev 系统使用户空间程序能够自动配置并使用新设备，内核如何通过 udev 向用户进程发消息？
 
 ## 3.1 Device Files
 
 Unix 系统中将大部分设备的 I/O 接口表示为文件。这些设备文件有时被称为 *device nodes*。
 
-* 用户可以使用普通的文件操作使用设备
-* 设备也可以被一些操作文件的标准程序使用 (cat 等)
+- 用户可以使用普通的文件操作使用设备
+- 设备也可以被一些操作文件的标准程序使用 (cat 等)
 
 但并不是所有设备都可以通过标准文件 I/O 来使用。在 Linux 中，设备文件位于 `/dev` 目录下，运行命令可以查看所有的设备文件：
 
@@ -106,10 +100,10 @@ srw-rw-rw- 1 root root           0 Jan  6 07:56 log
 
 File mode 的第一个字符如果是 `b` / `c` / `p` / `s`，那么该文件对应一个设备：
 
-* `b` - block device
-* `c` - character device
-* `p` - pipe device
-* `s` - socket device
+- `b` - block device
+- `c` - character device
+- `p` - pipe device
+- `s` - socket device
 
 ### Block Device
 
@@ -119,8 +113,8 @@ File mode 的第一个字符如果是 `b` / `c` / `p` / `s`，那么该文件对
 
 这类设备的工作基于 **data streams**，只能对这类设备写入字符或读取字符。这类设备没有大小的概念：
 
-* 在进程中进行 read 或 write 的行为时，内核会通过驱动在设备上进行 read 或 write 操作
-* 在数据被传输到设备或者进程之后，内核 **不会** 备份或重新检验数据流
+- 在进程中进行 read 或 write 的行为时，内核会通过驱动在设备上进行 read 或 write 操作
+- 在数据被传输到设备或者进程之后，内核 **不会** 备份或重新检验数据流
 
 比如 **打印机** 属于这类设备。
 
@@ -136,38 +130,38 @@ File mode 的第一个字符如果是 `b` / `c` / `p` / `s`，那么该文件对
 
 `/dev` 目录中只有很少一部分的设备信息。Linux 内核通过 sysfs 接口，通过文件和目录，提供了查看设备真实硬件参数的统一视角。基路径位于 `/sys/devices`：
 
-* `/dev` 使用户进程能够使用设备
-* `/sys/devices` 用于查看信息和管理设备
-* 其中可能包含很多的符号链接，所以需要用 `ls -l` 来查看真实 sysfs 路径
+- `/dev` 使用户进程能够使用设备
+- `/sys/devices` 用于查看信息和管理设备
+- 其中可能包含很多的符号链接，所以需要用 `ls -l` 来查看真实 sysfs 路径
 
-在 `/sys/devices` 查找 `/dev` 中的路径可能很难，可以使用 `udevadm` 命令查找：(比如查找 `/dev/sda` 在 sysfs 下的路径)
+在 `/sys/devices` 查找 `/dev` 中的路径可能很难，可以使用 `udevadm` 命令查找：(比如查找 `/dev/sda` 在 sysfs 下的路径)。
 
-```console
-$ udevadm info --query=all --name=/dev/sda
+```bash
+udevadm info --query=all --name=/dev/sda
 ```
 
 ## 3.3 dd and Devices
 
 `dd` 程序在 block devices 或 character devices 中非常有用。程序功能：
 
-* 从输入流或输入文件中读取
-* 写入输出文件或输出流
-* 可能顺带做一些编码转换工作
+- 从输入流或输入文件中读取
+- 写入输出文件或输出流
+- 可能顺带做一些编码转换工作
 
 `dd` 以固定块大小拷贝数据：
 
-```console
-$ dd if=/dev/zero of=new_file bs=1024 count=1
+```bash
+dd if=/dev/zero of=new_file bs=1024 count=1
 ```
 
-* `if=file` - the input file
-* `of=file` - the output file
-* `bs=size` - the block size
-  * `ibs=size`
-  * `obs=size`
-  * 用于输入输出的 block size 不同
-* `count=num` - the total number of blocks to copy
-* `skip=num` - 在输入文件或输入流中跳过前 num 个块，不拷贝到输出中
+- `if=file` - the input file
+- `of=file` - the output file
+- `bs=size` - the block size
+  - `ibs=size`
+  - `obs=size`
+  - 用于输入输出的 block size 不同
+- `count=num` - the total number of blocks to copy
+- `skip=num` - 在输入文件或输入流中跳过前 num 个块，不拷贝到输出中
 
 参数格式与其它 Unix 命令不同：IBM Job Control Language (JCL) style。
 
@@ -209,13 +203,13 @@ udevd 守护进程的操作过程：
 
 udevadm 程序是一个 udevd 管理工具：
 
-* 对系统设备进行搜索
-* 监控内核向 udevd 发送的 uevents
+- 对系统设备进行搜索
+- 监控内核向 udevd 发送的 uevents
 
 ### 3.5.4 Monitoring Devices
 
-```console
-$ udevadm monitor
+```bash
+udevadm monitor
 ```
 
 ---
@@ -235,21 +229,21 @@ $ lsscsi
 
 编号含义（从左到右）：
 
-* SCSI host adapter number
-* SCSI bus number
-* Device SCSI ID
-* Logical Unit Number
+- SCSI host adapter number
+- SCSI bus number
+- Device SCSI ID
+- Logical Unit Number
 
 SCSI 子系统及其三层驱动：
 
 ![scsi-subsystem](./img/scsi-subsystem.png)
 
-* 最顶层处理一类设备的操作
-  * 比如将内核中的 block device 请求转换为 SCSI 协议中对应的命令，反之亦然
-* 中间层转发上层和下层之间的 SCSI 消息，并追踪系统连接的所有 SCSI 总线和设备
-* 最下层处理硬件相关的操作
-  * 将 SCSI 消息发送到特定的 host adapters 上，反之亦然
-  * 同一类设备的 SCSI message 是统一的，不同的 host adapter 对发送相同的 message 有着不同的步骤
+- 最顶层处理一类设备的操作
+  - 比如将内核中的 block device 请求转换为 SCSI 协议中对应的命令，反之亦然
+- 中间层转发上层和下层之间的 SCSI 消息，并追踪系统连接的所有 SCSI 总线和设备
+- 最下层处理硬件相关的操作
+  - 将 SCSI 消息发送到特定的 host adapters 上，反之亦然
+  - 同一类设备的 SCSI message 是统一的，不同的 host adapter 对发送相同的 message 有着不同的步骤
 
 ### 3.6.1 USB Storage and SCSI
 
